@@ -1,0 +1,7 @@
+flask
+python-binance
+pandas
+scikit-learn
+joblib
+ta
+requests
