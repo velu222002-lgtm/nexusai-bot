@@ -14,7 +14,7 @@ except:
 app = Flask(__name__)
 
 print("Connecting to Binance Testnet...")
-client = Client(config.API_KEY, config.API_SECRET, testnet=True)
+client = Client(config.API_KEY, config.API_SECRET)
 try:
     st = client.get_server_time()
     client.timestamp_offset = st['serverTime'] - int(time.time() * 1000)
