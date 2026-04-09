@@ -22,8 +22,13 @@ try:
 except:
     pass
 print("Connected!")
-model = joblib.load("models/trading_model.pkl")
-print("AI Model loaded!")
+import os
+if os.path.exists("models/trading_model.pkl"):
+    model = joblib.load("models/trading_model.pkl")
+    print("AI Model loaded!")
+else:
+    print("No model found - signals will be random")
+    model = None
 
 FEATURES = [
     "rsi","macd","macd_sig","ema_9","ema_20","ema_50",
@@ -70,11 +75,16 @@ def get_signal(symbol):
         df["williams"] = ta.momentum.WilliamsRIndicator(df["high"],df["low"],df["close"]).williams_r()
         df["momentum"] = df["close"].pct_change(5)
         df.dropna(inplace=True)
-        latest     = df[FEATURES].iloc[-1:]
-        proba      = model.predict_proba(latest)[0]
-        pred       = model.predict(latest)[0]
-        confidence = round(max(proba)*100, 1)
-        signal     = "BUY" if pred == 1 else "SELL"
+latest = df[FEATURES].iloc[-1:]
+if model:
+    proba      = model.predict_proba(latest)[0]
+    pred       = model.predict(latest)[0]
+    confidence = round(max(proba)*100, 1)
+    signal     = "BUY" if pred == 1 else "SELL"
+else:
+    rsi_val    = df["rsi"].iloc[-1]
+    signal     = "BUY" if rsi_val < 40 else "SELL"
+    confidence = 55.0
         return {
             "symbol":     symbol,
             "price":      round(df["close"].iloc[-1], 2),
